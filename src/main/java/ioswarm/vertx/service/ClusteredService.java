@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 public abstract class ClusteredService extends Service {
 
 	private final String id = UUID.randomUUID().toString();
-	private Map<String, JsonObject> neighbor = new HashMap<String, JsonObject>();
+	protected Map<String, JsonObject> neighbor = new HashMap<String, JsonObject>();
 	private long aliveTimerId = 0l;
 	
 	public String id() { return id; }
