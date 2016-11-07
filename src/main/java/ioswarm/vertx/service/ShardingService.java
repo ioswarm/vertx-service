@@ -80,7 +80,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 						vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), rpl -> {
 							if (rpl.succeeded()) msg.reply(rpl.result().body());
 							else {
-								warn("Could not send message to shard ... 1 "+msg.headers().get("shard")+".", rpl.cause());
+								warn("Could not send message to shard(1) ... "+msg.headers().get("shard")+".", rpl.cause());
 								msg.fail(-2, rpl.cause().getMessage());
 							}
 						});
@@ -94,7 +94,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 				vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), rpl -> {
 					if (rpl.succeeded()) msg.reply(rpl.result().body());
 					else {
-						warn("Could not send message to shard ... 2 "+msg.headers().get("shard")+".", rpl.cause());
+						warn("Could not send message to shard(2) ... "+msg.headers().get("shard")+".", rpl.cause());
 						msg.fail(-2, rpl.cause().getMessage());
 					}
 				});
