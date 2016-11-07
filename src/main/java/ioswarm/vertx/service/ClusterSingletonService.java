@@ -4,7 +4,7 @@ import java.util.Random;
 
 import io.vertx.core.json.JsonObject;
 
-public abstract class ClusterSingletonService extends ClusteredService {
+public abstract class ClusterSingletonService<T> extends ClusteredService<T> {
 
 	private int sequence = 0;
 	

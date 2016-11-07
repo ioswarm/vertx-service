@@ -1,4 +1,4 @@
-package example;
+package example.cluster;
 
 import ioswarm.vertx.service.ClusteredService;
 

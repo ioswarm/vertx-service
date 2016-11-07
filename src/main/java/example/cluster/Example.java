@@ -1,4 +1,4 @@
-package example;
+package example.cluster;
 
 import com.hazelcast.config.Config;
 

@@ -8,13 +8,15 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 
-public abstract class ClusteredService extends Service {
+public abstract class ClusteredService<T> extends Service {
 
 	private final String id = UUID.randomUUID().toString();
 	protected Map<String, JsonObject> neighbor = new HashMap<String, JsonObject>();
 	private long aliveTimerId = 0l;
+	protected MessageConsumer<T> msgConsumer;
 	
 	public String id() { return id; }
 	
@@ -50,6 +52,9 @@ public abstract class ClusteredService extends Service {
 	@Override
 	public void start() {
 		final EventBus eb = vertx.eventBus();
+		
+		msgConsumer = eb.consumer(address(), this::onMessage);
+		
 		eb.consumer(registerClusterServiceAddress(), this::onRegisterClusterService);
 		eb.consumer(registerClusterServiceAddress(id), this::onRegisterClusterService);
 		
@@ -82,6 +87,8 @@ public abstract class ClusteredService extends Service {
 		try {
 			onStop();
 		} finally {
+			msgConsumer.unregister();
+			
 			vertx.cancelTimer(aliveTimerId);
 		}
 	}
@@ -91,6 +98,10 @@ public abstract class ClusteredService extends Service {
 	}
 	
 	public void onStop() {
+		
+	}
+	
+	public void onMessage(Message<T> msg) {
 		
 	}
 	
