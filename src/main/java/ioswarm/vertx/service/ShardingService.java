@@ -6,7 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.cache.RemovalNotification;
 
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 
 public abstract class ShardingService<T> extends ClusteredService<T> {
@@ -19,9 +21,9 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 	@Override
 	public void start() {
 		
-		removeShardTimerId = vertx.setPeriodic(5000l, hdl -> {
+		removeShardTimerId = vertx.setPeriodic(5000l, hdl -> { // TODO configure interval
 			for (final ShardEntry entry : shards.values()) 
-				if (entry.getTimestamp() < (System.currentTimeMillis()-10000l))
+				if (entry.getTimestamp() < (System.currentTimeMillis()-(5*60*1000))) // TODO configure ttl
 					removeShard(entry);
 		});
 		
@@ -59,6 +61,10 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 		});
 	}
 	
+	protected DeliveryOptions createFromHeader(MultiMap map) {
+		return new DeliveryOptions().setHeaders(map);
+	}
+	
 	@Override
 	public void onMessage(final Message<T> msg) {
 		if (msg.headers().get("shard") != null) {
@@ -77,7 +83,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 					});
 				}, res -> {
 					if (res.succeeded()) {
-						vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), rpl -> {
+						vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), createFromHeader(msg.headers()), rpl -> {
 							if (rpl.succeeded()) msg.reply(rpl.result().body());
 							else {
 								warn("Could not send message to shard(1) ... "+msg.headers().get("shard")+".", rpl.cause());
@@ -91,7 +97,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 				});
 			} else {
 				shards.put(msg.headers().get("shard"), shards.get(msg.headers().get("shard")).refresh());
-				vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), rpl -> {
+				vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), createFromHeader(msg.headers()), rpl -> {
 					if (rpl.succeeded()) msg.reply(rpl.result().body());
 					else {
 						warn("Could not send message to shard(2) ... "+msg.headers().get("shard")+".", rpl.cause());
