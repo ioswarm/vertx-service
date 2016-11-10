@@ -69,6 +69,27 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 	public void onMessage(final Message<T> msg) {
 		if (msg.headers().get("shard") != null) {
 			if (!shards.containsKey(msg.headers().get("shard"))) {
+//				final Verticle v = createShardInstance(msg.headers().get("shard"));
+//				DeploymentOptions ops = new DeploymentOptions().setWorker(true);
+//				vertx.deployVerticle(v, ops, cpl -> {
+//					if (cpl.succeeded()) {
+//						shards.put(msg.headers().get("shard"), new ShardEntry(msg.headers().get("shard"), cpl.result()));
+//						info("Shard "+address(msg.headers().get("shard"))+" deployed.");
+//						
+//						vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), createFromHeader(msg.headers()), rpl -> {
+//							if (rpl.succeeded()) msg.reply(rpl.result().body());
+//							else {
+//								warn("Could not send message to shard(1) ... "+msg.headers().get("shard")+".", rpl.cause());
+//								msg.fail(-2, rpl.cause().getMessage());
+//							}
+//						});
+//					} else {
+//						error("ERROR while deploy shard for "+msg.headers().get("shard")+".", cpl.cause());
+//						msg.fail(-3, cpl.cause().getMessage());
+//					}
+//				});
+				
+				
 				vertx.executeBlocking(f -> {
 					final Verticle v = createShardInstance(msg.headers().get("shard"));
 					DeploymentOptions ops = new DeploymentOptions().setWorker(true);
@@ -83,6 +104,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 					});
 				}, res -> {
 					if (res.succeeded()) {
+						info("send shard 1");
 						vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), createFromHeader(msg.headers()), rpl -> {
 							if (rpl.succeeded()) msg.reply(rpl.result().body());
 							else {
@@ -97,6 +119,7 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 				});
 			} else {
 				shards.put(msg.headers().get("shard"), shards.get(msg.headers().get("shard")).refresh());
+				info("send shard 2");
 				vertx.eventBus().send(address(msg.headers().get("shard")), msg.body(), createFromHeader(msg.headers()), rpl -> {
 					if (rpl.succeeded()) msg.reply(rpl.result().body());
 					else {
