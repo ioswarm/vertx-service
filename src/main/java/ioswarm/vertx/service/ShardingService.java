@@ -62,7 +62,9 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 	}
 	
 	protected DeliveryOptions createFromHeader(MultiMap map) {
-		return new DeliveryOptions().setHeaders(map);
+		return new DeliveryOptions()
+				.setHeaders(map)
+				.setSendTimeout(5*60*1000); // TODO configure
 	}
 	
 	@Override
