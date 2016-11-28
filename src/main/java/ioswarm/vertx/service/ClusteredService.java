@@ -108,7 +108,7 @@ public abstract class ClusteredService<T> extends Service {
 	public void onRegisterClusterService(Message<JsonObject> msg) {
 		String fid = msg.body().getString("id");
 		if (id.equals(fid) || neighbor.containsKey(fid)) return;
-		logger().info("register ClusterService "+address(fid)+" at "+address(id));
+		info("register ClusterService "+address(fid)+" at "+address(id));
 
 		neighbor.put(fid, msg.body());
 		vertx.eventBus().send(registerClusterServiceAddress(fid), stateToken());
@@ -129,7 +129,7 @@ public abstract class ClusteredService<T> extends Service {
 	
 	public void onRemoveClusterService(Message<JsonObject> msg) {
 		String fid = msg.body().getString("id");
-		logger().warn("ClusterService "+address(fid)+" is not alive ... remove from "+address(id));
+		warn("ClusterService "+address(fid)+" is not alive ... remove from "+address(id));
 		neighbor.remove(fid);
 	}
 }
