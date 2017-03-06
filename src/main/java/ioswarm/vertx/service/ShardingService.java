@@ -22,9 +22,11 @@ public abstract class ShardingService<T> extends ClusteredService<T> {
 	public void start() {
 		
 		removeShardTimerId = vertx.setPeriodic(5000l, hdl -> { // TODO configure interval
-			for (final ShardEntry entry : shards.values()) 
-				if (entry.getTimestamp() < (System.currentTimeMillis()-(5*60*1000))) // TODO configure ttl
-					removeShard(entry);
+			synchronized (shards) {
+				for (final ShardEntry entry : shards.values()) 
+					if (entry.getTimestamp() < (System.currentTimeMillis()-(5*60*1000))) // TODO configure ttl
+						removeShard(entry);
+			}
 		});
 		
 		super.start();
