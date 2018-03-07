@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ioswarm</groupId>
   <artifactId>vertx-service</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <name>Vertx Service API</name>
   
   <properties>
@@ -30,17 +30,17 @@
   	<dependency>
   		<groupId>io.vertx</groupId>
   		<artifactId>vertx-core</artifactId>
-  		<version>3.3.3</version>
+  		<version>3.5.1</version>
   	</dependency>
   	<dependency>
   		<groupId>io.vertx</groupId>
   		<artifactId>vertx-hazelcast</artifactId>
-  		<version>3.3.3</version>
+  		<version>3.5.1</version>
   	</dependency>
   	<dependency>
   		<groupId>com.google.guava</groupId>
   		<artifactId>guava</artifactId>
-  		<version>19.0</version>
+  		<version>22.0</version>
   	</dependency>
   </dependencies>
 </project>
